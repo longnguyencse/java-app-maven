@@ -69,10 +69,8 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <mainClass>dev.at.mikorn.vn.App</mainClass>
+                            <classpathPrefix>lib/</classpathPrefix>
                         </manifest>
-                        <manifestEntries>
-                            <Class-Path>lib/</Class-Path>
-                        </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>
@@ -133,7 +131,7 @@
                 <executions>
                     <execution>
                         <id>copy-dependencies</id>
-                        <phase>prepare-package</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>copy-dependencies</goal>
                         </goals>
