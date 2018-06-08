@@ -75,34 +75,33 @@
                 </configuration>
             </plugin>
 
-            <!-- Copy resources configuration file-->
+            <!-- Copy resources conf file, remmeber defferent id-->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.1.0</version>
                 <executions>
                     <execution>
-                        <id>copy-resources</id>
+                        <id>copy-resources-conf</id>
                         <!-- here the phase you need -->
-                        <phase>install</phase>
+                        <phase>validate</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${basedir}/target/src/main/resources/configuration</outputDirectory>
+                            <outputDirectory>${project.build.directory}/src/main/resources/conf</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>/src/main/resources/configuration</directory>
-                                    <filtering>true</filtering>
+                                    <directory>/src/main/resources/conf</directory>
+                                    <filtering>false</filtering>
                                 </resource>
                             </resources>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+
             <!-- Copy folder bin-->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <id>copy-resources</id>
@@ -116,7 +115,7 @@
                             <resources>
                                 <resource>
                                     <directory>/src/main/resources/bin</directory>
-                                    <filtering>true</filtering>
+                                    <filtering>false</filtering>
                                 </resource>
                             </resources>
                         </configuration>
@@ -152,7 +151,7 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <excludes>
-                    <exclude>configuration/</exclude>
+                    <exclude>conf/</exclude>
                     <exclude>bin/</exclude>
                 </excludes>
                 <filtering>false</filtering>

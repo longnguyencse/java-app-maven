@@ -23,7 +23,7 @@ public class App {
         // Create and load default properties
         Properties defaultProps = new Properties();
         try {
-            FileInputStream in = new FileInputStream("./src/main/resources/configuration/bootstrap.conf");
+            FileInputStream in = new FileInputStream("./src/main/resources/conf/bootstrap.conf");
             defaultProps.load(in);
             defaultProps.entrySet().forEach(objectObjectEntry -> {
                 logger.info(objectObjectEntry.getKey() + " : " + objectObjectEntry.getValue());
@@ -37,7 +37,8 @@ public class App {
             e.printStackTrace();
         }
 
-
+        System.out.println("Press Any Key To Continue...");
+        new java.util.Scanner(System.in).nextLine();
     }
 
 }
