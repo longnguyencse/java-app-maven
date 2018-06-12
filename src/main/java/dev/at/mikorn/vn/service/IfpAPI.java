@@ -2,6 +2,7 @@ package dev.at.mikorn.vn.service;
 
 import dev.at.mikorn.vn.model.Contributor;
 import dev.at.mikorn.vn.model.Repository;
+import dev.at.mikorn.vn.model.Result;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -34,11 +35,16 @@ public interface IfpAPI {
             return port;
         }
     }
-
+    // 3.1 Upload original file on the web (binary zip file)
     @POST("/files/save")
-    Observable<List> savefile();
+    Observable<Result> savefile();
 
-// test api
+
+
+
+
+
+    // test api github
     @GET("users/{user}/repos")
     Observable<List<Repository>> listRepos(@Path("user") String user);
 

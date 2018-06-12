@@ -17,7 +17,9 @@ public class IfpApiService {
 
     public IfpApiService() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.github.com/")
+                //.baseUrl("https://api.github.com/")
+                .baseUrl(String.format("%s:%s",IfpAPI.SERVER_CONFIG.IFP.getUrlEndPoit(),
+                        IfpAPI.SERVER_CONFIG.IFP.getPort()))
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
@@ -32,4 +34,5 @@ public class IfpApiService {
                 .map(Contributor::getName)
                 .distinct();
     }
+
 }
