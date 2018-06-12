@@ -20,6 +20,7 @@ public class ZipMultipleFiles {
     public static void main(String[] args) throws IOException {
         List<String> srcFiles = Arrays.asList("X:/ifp/tool-test-nifi/src/main/resources/test1.txt",
                 "X:/ifp/tool-test-nifi/src/main/resources/text2.txt");
+
         FileOutputStream fos = new FileOutputStream("multiCompressed.zip");
         ZipOutputStream zipOut = new ZipOutputStream(fos);
         System.out.println(System.getProperty("user.dir"));
