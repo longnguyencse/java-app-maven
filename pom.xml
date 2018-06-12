@@ -15,7 +15,7 @@
         <rxjava.version>2.4.0</rxjava.version>
 
         <!--path-->
-        <configuration.path>${project.build.directory}/src/main/resources/conf</configuration.path>
+        <configuration.path>${project.build.directory}/conf</configuration.path>
         <lib.path>${project.build.directory}/lib</lib.path>
         <bin.path>${project.build.directory}/bin</bin.path>
     </properties>
@@ -63,9 +63,14 @@
         <dependency>
             <groupId>com.squareup.retrofit2</groupId>
             <artifactId>adapter-rxjava</artifactId>
-            <version>2.3.0</version>
+            <version>${rxjava.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
+        </dependency>
     </dependencies>
     <!---->
     <build>
@@ -107,11 +112,10 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <!--<outputDirectory>${project.build.directory}/src/main/resources/conf</outputDirectory>-->
                             <outputDirectory>${configuration.path}</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>/src/main/resources/conf</directory>
+                                    <directory>/conf</directory>
                                     <filtering>false</filtering>
                                 </resource>
                             </resources>
