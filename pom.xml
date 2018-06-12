@@ -12,6 +12,7 @@
         <log4j.version>2.11.0</log4j.version>
         <retrofit.version>2.4.0</retrofit.version>
         <retrofit.version>2.4.0</retrofit.version>
+        <rxjava.version>2.4.0</rxjava.version>
 
         <!--path-->
         <configuration.path>${project.build.directory}/src/main/resources/conf</configuration.path>
@@ -56,6 +57,13 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
             <version>${log4j.version}</version>
+        </dependency>
+
+        <!--rxjava-->
+        <dependency>
+            <groupId>com.squareup.retrofit2</groupId>
+            <artifactId>adapter-rxjava</artifactId>
+            <version>2.3.0</version>
         </dependency>
 
     </dependencies>
