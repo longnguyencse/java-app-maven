@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.Scanner;
 
 /**
  * Author Mikorn vietnam
@@ -38,7 +39,7 @@ public class App {
         }
 
         System.out.println("Press Any Key To Continue...");
-        new java.util.Scanner(System.in).nextLine();
+        new Scanner(System.in).nextLine();
     }
 
 }
