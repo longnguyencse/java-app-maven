@@ -20,6 +20,10 @@ public class App {
     private static Logger logger = LogManager.getLogger(App.class);
     private static final String PATH_CONFIG_FILE ="./conf/bootstrap.conf";
     private HashMap<String, String> config;
+    private static int numberZipFile = 0;
+    private static int iLimitFile ;
+    private static String configContent;
+
 
     public static void main(String[] args) {
 
@@ -44,6 +48,9 @@ public class App {
         app.isCreateFolderZip();
         // we have a list file
         // zip file have number frame in config
+        iLimitFile = NumberUtils.toInt(app.config.get(ConfigParams.LIMIT_ZIP_FILE.getParam()), 0);
+        configContent = app.config.get(ConfigParams.IS_DIFFERENT_CONTENT.getParam());
+
         try {
             app.zipFileHelper(fileNameOriginalZip, files);
         } catch (IOException e) {
@@ -94,7 +101,15 @@ public class App {
             ZipOutputStream zipOut = new ZipOutputStream(fos);
 
             for (int i = 0; i < numberFrame; i ++) {
-                File fileToZip = new File(listFiles.get(0).getPath());
+                File fileToZip;
+                if (configContent.equals("1")) {
+                    fileToZip = new File(listFiles.get(0).getPath());
+                } else {
+                    Random random = new Random();
+//                    int index = random.nextInt(listFiles.size()- 1);
+                    fileToZip = new File(listFiles.get(i).getPath());
+                }
+               // File fileToZip = new File(listFiles.get(0).getPath());
                 FileInputStream fis = new FileInputStream(fileToZip);
                 ZipEntry zipEntry = new ZipEntry(fileToZip.getName());
                 zipOut.putNextEntry(zipEntry);
@@ -106,13 +121,23 @@ public class App {
                 }
                 fis.close();
                 // remove file
-                listFiles.remove(0);
+                // can create number file fowlling config
+                if (configContent.equals("1")) {
+                    listFiles.remove(0);
+                }
             }
             zipOut.close();
             fos.close();
+            // if number zip file > limit file
+            // return
+            numberZipFile += 1;
+            logger.info(String.format("Number of file: %s", numberZipFile));
+
+            if (iLimitFile != 0 && numberZipFile > iLimitFile) {
+                return;
+            }
             // upload server by using API
             // ++ call retrofit service
-
 
 
             // recursive call
@@ -159,14 +184,14 @@ public class App {
         }
         if (filePath.isFile()) {
             // todo with file
-            logger.info("file" + filePath);
+            //logger.info("file" + filePath);
             files.add(filePath);
             //files.remove(filePath);
             return;
         }
         for (File fileEx: filePath.listFiles()) {
             getFileInDirectory(fileEx, files);
-            logger.info(String.format("Size file: %s", files.size()));
+            //logger.info(String.format("Size file: %s", files.size()));
         }
     }
 
@@ -177,6 +202,7 @@ public class App {
             FileInputStream in = new FileInputStream(PATH_CONFIG_FILE);
             defaultProps.load(in);
             config = new HashMap<>();
+
             config.put(ConfigParams.FOLDER_DATA.getParam(),
                     defaultProps.getProperty(ConfigParams.FOLDER_DATA.getParam()));
             config.put(ConfigParams.NUMBER_FRAMES.getParam(),
@@ -184,6 +210,13 @@ public class App {
 
             config.put(ConfigParams.ZIP_FOLDER.getParam(),
                     defaultProps.getProperty(ConfigParams.ZIP_FOLDER.getParam()));
+
+            config.put(ConfigParams.IS_DIFFERENT_CONTENT.getParam(),
+                    defaultProps.getProperty(ConfigParams.IS_DIFFERENT_CONTENT.getParam()));
+
+            config.put(ConfigParams.LIMIT_ZIP_FILE.getParam(),
+                    defaultProps.getProperty(ConfigParams.LIMIT_ZIP_FILE.getParam()));
+
             /*
             defaultProps.entrySet().forEach(objectObjectEntry -> {
                 logger.info(objectObjectEntry.getKey() + " : " + objectObjectEntry.getValue());

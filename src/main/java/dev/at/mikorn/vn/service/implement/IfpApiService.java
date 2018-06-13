@@ -1,7 +1,10 @@
 package dev.at.mikorn.vn.service.implement;
 
 import dev.at.mikorn.vn.model.Contributor;
+import dev.at.mikorn.vn.model.Result;
 import dev.at.mikorn.vn.service.IfpAPI;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -14,6 +17,7 @@ import rx.Observable;
 
 public class IfpApiService {
     private IfpAPI ifpAPI;
+    private final static String VIDEO_TYPE = "video";
 
     public IfpApiService() {
         Retrofit retrofit = new Retrofit.Builder()
@@ -35,4 +39,9 @@ public class IfpApiService {
                 .distinct();
     }
 
+    // flow 3.1 --> 3.10 --> 3.13 --> 3.14
+
+    public Observable<Result> triggerUploadingToHdfs(RequestBody fileType, MultipartBody.Part file) {
+        return ifpAPI.savefile(fileType, file);
+    }
 }
