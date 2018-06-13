@@ -20,7 +20,8 @@ import java.util.List;
 public interface IfpAPI {
 
     enum SERVER_CONFIG {
-        IFP("http://ifp-nifi.at.mikorn.com", 8083);
+//        IFP("http://ifp-nifi.at.mikorn.com", 8083);
+        IFP("http://192.168.1.220", 8084);
 
 
         String urlEndPoit;
@@ -40,8 +41,8 @@ public interface IfpAPI {
     // 3.1 Upload original file on the web (binary zip file)
     @Multipart
     @POST("/files/save")
-    Observable<Result> savefile(@Part RequestBody file_type,
-                                @Part("file") MultipartBody.Part file);
+    Observable<Result> savefile(@Part("file_type") RequestBody file_type,
+                                @Part MultipartBody.Part file);
 
     // 3.10. Save a file frame layer (.gtt compress file) with revision (labeled data)
     @POST("/files/save_frame_layer")

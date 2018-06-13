@@ -16,11 +16,9 @@ public class RxApp {
     public static void main(String[] args) {
         String username = "eugenp";
 //        new IfpApiService().getTopContributors(username).subscribe(System.out::println);
-//        new IfpApiService().triggerUploadingToHdfs("video",
-//                new File("D:\\learn\\data\\example\\zip\\Original_file_1528809017894_338_10.zip")
-//        ).subscribe(System.out::println);
+
         RxApp app = new RxApp();
-        app.uploadFile("D:\\learn\\data\\example\\zip\\Original_file_1528809017894_338_10.zip");
+        app.uploadFile("D:\\learn\\data\\example\\zip\\Original_file_1528871273105_74_93.zip");
     }
     private void uploadFile(String path) {
         // create upload service client
@@ -36,7 +34,7 @@ public class RxApp {
         // MultipartBody.Part is used to send also the actual file name
         MultipartBody.Part body =
                 MultipartBody.Part.createFormData("video", file.getName(), requestFile);
-
+//        body.
         // add another part within the multipart request
         String fileType = "video";
         RequestBody description =
@@ -44,23 +42,14 @@ public class RxApp {
                         MediaType.parse("multipart/form-data"), fileType);
 
         // finally, execute the request
-        new IfpApiService().triggerUploadingToHdfs(description, body).subscribe(System.out::println);
+        new IfpApiService().triggerUploadingToHdfs(description, body).subscribe(result -> {
+            System.out.println("result: " + result.getMessage());
+        }, throwable -> {
+            System.out.println("fail");
+        }, () -> {
+            System.out.println("adafasfa");
+        });
 
-
-
-//        Call<ResponseBody> call = cobaltServices.upload(description, body);
-//        call.enqueue(new Callback<ResponseBody>() {
-//            @Override
-//            public void onResponse(Call<ResponseBody> call,
-//                                   Response<ResponseBody> response) {
-//                Log.v("Upload", "success");
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ResponseBody> call, Throwable t) {
-//                Log.e("Upload error:", t.getMessage());
-//            }
-//        });
     }
 
 }
