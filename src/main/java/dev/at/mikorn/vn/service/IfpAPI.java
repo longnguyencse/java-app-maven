@@ -46,8 +46,12 @@ public interface IfpAPI {
 
     // 3.10. Save a file frame layer (.gtt compress file) with revision (labeled data)
     @POST("/files/save_frame_layer")
-    Observable<Result> saveFrameLayer(@Part RequestBody revision, @Part RequestBody file_id,
-                                      @Part RequestBody file, @Part RequestBody frame_id);
+    Observable<Result> saveFrameLayer(@Part("revision") RequestBody revision, @Part("file_id") RequestBody file_id,
+                                      @Part("file") MultipartBody.Part file, @Part("frame_id") RequestBody frame_id);
+
+//    @POST("/files/save_frame_layer")
+//    Observable<Result> saveFrameLayer(@Part RequestBody revision, @Part RequestBody file_id,
+//                                      @Part MultipartBody.Part file, @Part RequestBody frame_id);
 
     // 3.13 QC Tool: Make checking a file|image with revision (Temporary flow)
     @POST("/files/qc_checking")

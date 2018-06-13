@@ -1,6 +1,7 @@
 package dev.at.mikorn.vn.service.implement;
 
 import dev.at.mikorn.vn.model.Contributor;
+import dev.at.mikorn.vn.model.QcModel;
 import dev.at.mikorn.vn.model.Result;
 import dev.at.mikorn.vn.service.IfpAPI;
 import okhttp3.MultipartBody;
@@ -40,8 +41,21 @@ public class IfpApiService {
     }
 
     // flow 3.1 --> 3.10 --> 3.13 --> 3.14
-
-    public Observable<Result> triggerUploadingToHdfs(RequestBody fileType, MultipartBody.Part file) {
+    // 3.1
+    public Observable<Result> saveFile(RequestBody fileType, MultipartBody.Part file) {
         return ifpAPI.savefile(fileType, file);
+    }
+    // 3.10
+    public Observable<Result> saveFrameLayer(RequestBody revision, RequestBody file_id, MultipartBody.Part file,
+                                             RequestBody frame_id) {
+        return ifpAPI.saveFrameLayer(revision, file_id, file, frame_id);
+    }
+    // 3.13
+    public Observable<Result> qcChecking(QcModel qcModel) {
+        return ifpAPI.qcChecking(qcModel);
+    }
+    // 3.14
+    public Observable<Result> qcAcceptAnnotated(QcModel qcModel) {
+        return ifpAPI.qcAcceptAnnotated(qcModel);
     }
 }
