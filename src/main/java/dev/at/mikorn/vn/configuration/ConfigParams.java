@@ -10,6 +10,7 @@ public enum ConfigParams {
     ZIP_FOLDER("zip-folder"),
     IS_DIFFERENT_CONTENT("is-different-content"),
     LIMIT_ZIP_FILE("limit-zip-file"),
+    URL_PROP("url-server"),
     NUMBER_FRAMES("number-frame-annotated-file");
 
     String param;

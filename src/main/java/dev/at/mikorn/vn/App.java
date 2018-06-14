@@ -1,12 +1,22 @@
 package dev.at.mikorn.vn;
 
 import dev.at.mikorn.vn.configuration.ConfigParams;
+import dev.at.mikorn.vn.model.QcModel;
+import dev.at.mikorn.vn.model.builder.QcModelBuilder;
+import dev.at.mikorn.vn.service.IfpAPI;
+import dev.at.mikorn.vn.utils.UploadFiles;
+import dev.at.mikorn.vn.service.implement.IfpApiService;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -18,11 +28,13 @@ import java.util.zip.ZipOutputStream;
 
 public class App {
     private static Logger logger = LogManager.getLogger(App.class);
-    private static final String PATH_CONFIG_FILE ="./conf/bootstrap.conf";
+    private final static String PATH_CONFIG_FILE ="./conf/bootstrap.conf";
     private HashMap<String, String> config;
     private static int numberZipFile = 0;
     private static int iLimitFile ;
     private static String configContent;
+    private final static String URL_SERVER = String.format("%s:%s",IfpAPI.SERVER_CONFIG.IFP.getUrlEndPoit(),
+            IfpAPI.SERVER_CONFIG.IFP.getPort());
 
 
     public static void main(String[] args) {
@@ -96,6 +108,9 @@ public class App {
             logger.error("Number frame is invalid");
             return;
         }
+        // list contain file in zip file
+        List<File> fileinZip = new ArrayList<>();
+
         if (listFiles.size() > numberFrame) {
             FileOutputStream fos = new FileOutputStream(filePath);
             ZipOutputStream zipOut = new ZipOutputStream(fos);
@@ -104,10 +119,12 @@ public class App {
                 File fileToZip;
                 if (configContent.equals("1")) {
                     fileToZip = new File(listFiles.get(0).getPath());
+                    fileinZip.add(listFiles.get(0));
                 } else {
                     Random random = new Random();
 //                    int index = random.nextInt(listFiles.size()- 1);
                     fileToZip = new File(listFiles.get(i).getPath());
+                    fileinZip.add(listFiles.get(i));
                 }
                // File fileToZip = new File(listFiles.get(0).getPath());
                 FileInputStream fis = new FileInputStream(fileToZip);
@@ -138,7 +155,7 @@ public class App {
             }
             // upload server by using API
             // ++ call retrofit service
-
+            uploadOriginalFile(filePath, fileinZip);
 
             // recursive call
             // ++ create new file name
@@ -152,6 +169,7 @@ public class App {
             // all file remaining
             for (int i =0; i < listFiles.size(); i ++) {
                 File fileToZip = new File(listFiles.get(i).getPath());
+                fileinZip.add(listFiles.get(i));
                 FileInputStream fis = new FileInputStream(fileToZip);
                 ZipEntry zipEntry = new ZipEntry(fileToZip.getName());
                 zipOut.putNextEntry(zipEntry);
@@ -172,10 +190,6 @@ public class App {
         String fileNameOriginalZip = String.format("Original_file_%s_%s_%s.zip",System.currentTimeMillis(),
                 random.nextInt(1000), random.nextInt(100));
         return fileNameOriginalZip;
-    }
-
-    private void createZipFile() {
-
     }
 
     private void getFileInDirectory(File filePath, List<File> files) {
@@ -217,6 +231,9 @@ public class App {
             config.put(ConfigParams.LIMIT_ZIP_FILE.getParam(),
                     defaultProps.getProperty(ConfigParams.LIMIT_ZIP_FILE.getParam()));
 
+            config.put(ConfigParams.URL_PROP.getParam(),
+                    defaultProps.getProperty(ConfigParams.URL_PROP.getParam()));
+
             /*
             defaultProps.entrySet().forEach(objectObjectEntry -> {
                 logger.info(objectObjectEntry.getKey() + " : " + objectObjectEntry.getValue());
@@ -228,4 +245,160 @@ public class App {
             e.printStackTrace();
         }
     }
+
+
+    private void uploadOriginalFile(String path, List<File> listInZip) throws IOException {
+        // create upload service client
+
+        // use the FileUtils to get the actual file by uri
+        File file = new File(path);
+
+
+        // create RequestBody instance from file
+        RequestBody requestFile =
+                RequestBody.create(MediaType.parse("multipart/form-data"), file);
+
+        // MultipartBody.Part is used to send also the actual file name
+        MultipartBody.Part body =
+                MultipartBody.Part.createFormData("video", file.getName(), requestFile);
+
+        // add another part within the multipart request
+        String fileType = "video";
+        RequestBody description =
+                RequestBody.create(
+                        MediaType.parse("multipart/form-data"), fileType);
+        // Files.copy(file.toPath(), file.toPath());
+        // finally, execute the request
+        new IfpApiService(config.get(ConfigParams.URL_PROP.getParam())).saveFile(description, body).subscribe(result -> {
+            System.out.println("result: " + result.getMessage());
+        }, throwable -> {
+            System.out.println("fail");
+        }, () -> { // next
+            System.out.println("Upload original file success --> Do next");
+
+            // upload annotated file
+            try {
+                uploadAnnotatedFile(file, listInZip);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        });
+
+    }
+
+    /**
+     * 3.10
+     * @param file
+     * @param fileInZip
+     * @throws IOException
+     */
+    private void uploadAnnotatedFile(File file, List<File> fileInZip) throws IOException {
+        String filePath = ".\\data\\annotated";
+        String filePathGtt = ".\\data\\annotated\\IMG_4513_01680.gtt";
+
+        if (null == fileInZip || fileInZip.size() ==0 ) {
+            return;
+        }
+        // if zip have data
+        for (File frame: fileInZip) {
+            // file
+            // create frame file with sample data
+            String origFrameName = FilenameUtils.getBaseName(frame.getName());
+            String pathFrame = String.format("%s\\%s.zip", filePath, origFrameName);
+            File frameFile = new File(pathFrame);
+            if (!frameFile.exists()) {
+                File source = new File(filePathGtt);
+                Files.copy(source.toPath(), frameFile.toPath());
+            }
+
+            UploadFiles.uploadMutiFiles(frameFile.getAbsolutePath(),
+                    config.get(ConfigParams.URL_PROP.getParam()) + "/files/save_frame_layer"
+                    , frame.getName(), file.getName(), 0);
+
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        // --> 3.11 --> 3.13 --> 3.14
+        try {
+            doAnnotated(file);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // 3.13
+        makeCheckingFileAnnotated(file, 1);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // 3.14
+        /** try {
+            doUploadFile(file);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }*/
+    }
+
+    /**
+     * 3.11
+     * @param file
+     * @throws Exception
+     */
+    private void doAnnotated(File file) throws Exception {
+        UploadFiles.doPassed(config.get(ConfigParams.URL_PROP.getParam())+ "/files/annotated"
+                , file.getName(), 0);
+    }
+
+    /**
+     * 3.13
+     * Mark a file|image with revision is annotated
+     */
+    private void makeCheckingFileAnnotated(File file, int accept) {
+        QcModel qcModel = QcModelBuilder.aQcModel().withAccept(accept)
+                .withFileId(file.getName())
+                .withRevision(0)
+                .build();
+        new IfpApiService(config.get(ConfigParams.URL_PROP.getParam())).qcChecking(qcModel).subscribe(
+                result -> {
+                    logger.info("result: " + result.getMessage());
+                }, throwable -> {
+                    logger.info("fail");
+                }, () -> { // next
+                    logger.info("Upload original file success --> Do next");
+                    try {
+                        doUploadFile(file);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+        );
+    }
+
+    /**
+     * 3.14
+     */
+    private void doUploadFile(File file) throws Exception {
+        UploadFiles.doDownloadFiles(config.get(ConfigParams.URL_PROP.getParam())+ "/files/qc_accept_annotated",
+                file.getName(), 0);
+    }
+
 }

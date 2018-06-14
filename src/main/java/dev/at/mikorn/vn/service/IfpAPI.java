@@ -45,10 +45,13 @@ public interface IfpAPI {
                                 @Part MultipartBody.Part file);
 
     // 3.10. Save a file frame layer (.gtt compress file) with revision (labeled data)
+//    @POST("/files/save_frame_layer")
+//    Observable<Result> saveFrameLayer(@Part("revision") RequestBody revision, @Part("file_id") RequestBody file_id,
+//                                      @Part("file") MultipartBody.Part file, @Part("frame_id") RequestBody frame_id);
+    @FormUrlEncoded
     @POST("/files/save_frame_layer")
     Observable<Result> saveFrameLayer(@Part("revision") RequestBody revision, @Part("file_id") RequestBody file_id,
                                       @Part("file") MultipartBody.Part file, @Part("frame_id") RequestBody frame_id);
-
 //    @POST("/files/save_frame_layer")
 //    Observable<Result> saveFrameLayer(@Part RequestBody revision, @Part RequestBody file_id,
 //                                      @Part MultipartBody.Part file, @Part RequestBody frame_id);

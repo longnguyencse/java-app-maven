@@ -20,11 +20,12 @@ public class IfpApiService {
     private IfpAPI ifpAPI;
     private final static String VIDEO_TYPE = "video";
 
-    public IfpApiService() {
+    public IfpApiService(String url) {
         Retrofit retrofit = new Retrofit.Builder()
                 //.baseUrl("https://api.github.com/")
-                .baseUrl(String.format("%s:%s",IfpAPI.SERVER_CONFIG.IFP.getUrlEndPoit(),
-                        IfpAPI.SERVER_CONFIG.IFP.getPort()))
+                //.baseUrl(String.format("%s:%s",IfpAPI.SERVER_CONFIG.IFP.getUrlEndPoit(),
+                 //       IfpAPI.SERVER_CONFIG.IFP.getPort()))
+                .baseUrl(url)
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();

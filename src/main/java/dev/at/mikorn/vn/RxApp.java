@@ -51,20 +51,16 @@ public class RxApp {
         String json = new Gson().toJson(listFramename);
         RequestBody frameId = RequestBody.create(MediaType.parse("multipart/form-data"), json);
 
-        new IfpApiService().saveFrameLayer(revision, fileId, body, frameId ).subscribe(result -> {
-            System.out.println("result: " + result.getMessage());
-        }, throwable -> {
-            System.out.println("fail");
-        }, () -> { // next
-            System.out.println("adafasfa");
-        });
-
-
-
-
-
-
+//        new IfpApiService().saveFrameLayer(revision, fileId, body, frameId ).subscribe(result -> {
+//            System.out.println("result: " + result.getMessage());
+//        }, throwable -> {
+//            System.out.println("fail");
+//        }, () -> { // next
+//            System.out.println("adafasfa");
+//        });
     }
+
+
     private void uploadFile(String path) {
         // create upload service client
 
@@ -87,13 +83,13 @@ public class RxApp {
                         MediaType.parse("multipart/form-data"), fileType);
 
         // finally, execute the request
-        new IfpApiService().saveFile(description, body).subscribe(result -> {
-            System.out.println("result: " + result.getMessage());
-        }, throwable -> {
-            System.out.println("fail");
-        }, () -> { // next
-            System.out.println("adafasfa");
-        });
+//        new IfpApiService().saveFile(description, body).subscribe(result -> {
+//            System.out.println("result: " + result.getMessage());
+//        }, throwable -> {
+//            System.out.println("fail");
+//        }, () -> { // next
+//            System.out.println("adafasfa");
+//        });
 
     }
 

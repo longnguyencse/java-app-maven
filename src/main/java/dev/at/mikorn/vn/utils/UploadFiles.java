@@ -1,12 +1,11 @@
-package dev.at.mikorn.vn.service;
+package dev.at.mikorn.vn.utils;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
-
-
+import java.nio.file.Files;
 
 
 //import net.sf.json.JSONObject;
@@ -39,19 +38,21 @@ import org.json.simple.JSONObject;
  * @author javatutorial.net
  */
 public class UploadFiles {
-	public static void main(String[] args) {
-		String filePath = "D:\\tmp\\IFP_test_data\\load_frame_layers";
+
+	public static void main(String[] args) throws IOException {
+//		String filePath = "D:\\tmp\\IFP_test_data\\load_frame_layers";
+		String filePath = ".\\data\\annotated";
+		String filePathGtt = "D:\\learn\\data\\annotated\\IMG_4513_01680.gtt";
 		String url = "";
 		
 		String frameId = "";
 		String fileName = "";
-		fileName = "video_test_2.zip";
 		Integer index = 1;
 		Integer version = 0;
 		Integer fromIndex = 1;
 		Integer toIndex = 10;
 		Boolean isCon1 = true;
-		url = "http://localhost:8081/files/save";
+//		url = "http://localhost:8081/files/save";
 //		filePath = "D:\\tmp\\IFP_test_data";
 //		fromIndex = 11;
 //		toIndex = 20;
@@ -73,7 +74,7 @@ public class UploadFiles {
 		} catch (Exception e) {
 			// TODO: handle exception
 		}*/
-		url = "http://localhost:8081/files/save_frame_layer";
+		url = "http://192.168.1.220:8084/files/save_frame_layer";
 		// do annotating : upload layer
 		
 		for(int i = fromIndex; i <= toIndex; i++) {
@@ -92,6 +93,14 @@ public class UploadFiles {
 					}
 					String fileNameSub = n + "_" + m + ".gtt";
 					frameId = index + ".png";
+					String path = filePath + "\\" + fileNameSub;
+					File fileDes = new File(filePath + "\\" + fileNameSub);
+
+					if (!fileDes.exists()) {
+						File source = new File(filePathGtt);
+						Files.copy(source.toPath(), fileDes.toPath());
+					}
+
 					uploadMutiFiles(filePath + "\\" + fileNameSub, url, frameId, fileName, version);
 					index ++ ;
 				}
@@ -139,7 +148,12 @@ public class UploadFiles {
 				
 			}*/
 	}
-	private static void uploadMutiFiles (String filePath, String url, String frameId, String fileName, Integer revision) {
+
+
+
+
+
+	public static void uploadMutiFiles (String filePath, String url, String frameId, String fileName, Integer revision) {
 		// the file we want to upload
 				File inFile = new File(filePath);
 				FileInputStream fis = null;
@@ -222,7 +236,7 @@ public class UploadFiles {
 		}
 	}
 	
-private static void doPassed(String url, String fileName, Integer version) throws Exception{
+public static void doPassed(String url, String fileName, Integer version) throws Exception{
 		
         
         try {
@@ -262,7 +276,7 @@ private static void doPassed(String url, String fileName, Integer version) throw
 		}
 	}
 
-private static void doDownloadFiles(String url, String fileName, Integer version) throws Exception{
+public static void doDownloadFiles(String url, String fileName, Integer version) throws Exception{
 	
     
     try {
