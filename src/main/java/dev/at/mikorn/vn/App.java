@@ -149,6 +149,8 @@ public class App {
             // return
             numberZipFile += 1;
             logger.info(String.format("Number of file: %s", numberZipFile));
+            logger.info(String.format("filePath: %s", filePath));
+            logger.info(String.format("file name: %s", file));
 
             if (iLimitFile != 0 && numberZipFile > iLimitFile) {
                 return;
@@ -249,6 +251,7 @@ public class App {
 
     private void uploadOriginalFile(String path, List<File> listInZip) throws IOException {
         // create upload service client
+        logger.info(String.format("uploadOriginalFile"));
 
         // use the FileUtils to get the actual file by uri
         File file = new File(path);
@@ -272,7 +275,7 @@ public class App {
         new IfpApiService(config.get(ConfigParams.URL_PROP.getParam())).saveFile(description, body).subscribe(result -> {
             System.out.println("result: " + result.getMessage());
         }, throwable -> {
-            System.out.println("fail");
+            logger.error(String.format("fail, e %s", throwable.getMessage()));
         }, () -> { // next
             System.out.println("Upload original file success --> Do next");
 
@@ -364,7 +367,7 @@ public class App {
      * @throws Exception
      */
     private void doAnnotated(File file) throws Exception {
-        UploadFiles.doPassed(config.get(ConfigParams.URL_PROP.getParam())+ "/files/annotated"
+        UploadFiles.doAnnotated(config.get(ConfigParams.URL_PROP.getParam())+ "/files/annotated"
                 , file.getName(), 0);
     }
 
@@ -397,7 +400,7 @@ public class App {
      * 3.14
      */
     private void doUploadFile(File file) throws Exception {
-        UploadFiles.doDownloadFiles(config.get(ConfigParams.URL_PROP.getParam())+ "/files/qc_accept_annotated",
+        UploadFiles.doPassed(config.get(ConfigParams.URL_PROP.getParam())+ "/files/qc_accept_annotated",
                 file.getName(), 0);
     }
 

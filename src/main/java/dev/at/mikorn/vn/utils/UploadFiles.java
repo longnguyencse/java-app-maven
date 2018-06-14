@@ -1,19 +1,8 @@
 package dev.at.mikorn.vn.utils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.file.Files;
-
-
-//import net.sf.json.JSONObject;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -22,13 +11,20 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.DefaultedHttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONObject;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+
+//import net.sf.json.JSONObject;
 
 /**
  * This example shows how to upload files using POST requests 
@@ -38,6 +34,7 @@ import org.json.simple.JSONObject;
  * @author javatutorial.net
  */
 public class UploadFiles {
+	private final static Logger logger = LogManager.getLogger(UploadFiles.class);
 
 	public static void main(String[] args) throws IOException {
 //		String filePath = "D:\\tmp\\IFP_test_data\\load_frame_layers";
@@ -182,7 +179,7 @@ public class UploadFiles {
 					HttpEntity responseEntity = response.getEntity();
 					String responseString = EntityUtils.toString(responseEntity, "UTF-8");
 					
-					System.out.println("[" + statusCode + "] " + responseString + " :: fileName = " + fileName + " :: iframeId = " + frameId);
+					logger.info("[" + statusCode + "] " + responseString + " :: fileName = " + fileName + " :: iframeId = " + frameId);
 					
 				} catch (ClientProtocolException e) {
 					System.err.println("Unable to make connection");
@@ -197,7 +194,7 @@ public class UploadFiles {
 				}
 	}
 	
-	private static void doAnnotated(String url, String fileName, Integer version) throws Exception{
+	public static void doAnnotated(String url, String fileName, Integer version) throws Exception{
 		
         
         try {
@@ -223,7 +220,7 @@ public class UploadFiles {
 			HttpEntity responseEntity = response.getEntity();
 			String responseString = EntityUtils.toString(responseEntity, "UTF-8");
 			
-			System.out.println("Annotated ::: [" + statusCode + "] " + responseString + " :: fileName = " + fileName );
+			logger.info("Annotated ::: [" + statusCode + "] " + responseString + " :: fileName = " + fileName );
 			
 		} catch (ClientProtocolException e) {
 			System.err.println("Unable to make connection");
@@ -263,7 +260,7 @@ public static void doPassed(String url, String fileName, Integer version) throws
 			HttpEntity responseEntity = response.getEntity();
 			String responseString = EntityUtils.toString(responseEntity, "UTF-8");
 			
-			System.out.println("Accepted ::: [" + statusCode + "] " + responseString + " :: fileName = " + fileName );
+			logger.info("Accepted ::: [" + statusCode + "] " + responseString + " :: fileName = " + fileName );
 			
 		} catch (ClientProtocolException e) {
 			System.err.println("Unable to make connection");
