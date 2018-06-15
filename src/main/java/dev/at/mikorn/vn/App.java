@@ -40,27 +40,38 @@ public class App {
     public static void main(String[] args) {
 
         logger.info(String.format("Currency work space: %s", System.getProperty("user.dir")));
-
-        Random random = new Random();
-        /** for (int i =0 ; i < 1000; i++) {
-            String fileNameOriginalZip = String.format("Original_file_%s_%s_%s",System.currentTimeMillis(),
-                    random.nextInt(1000), random.nextInt(100));
-            logger.info(String.format("File generate: %s", fileNameOriginalZip));
-        }*/
-
-        String fileNameOriginalZip = String.format("Original_file_%s_%s_%s.zip",System.currentTimeMillis(),
-                random.nextInt(1000), random.nextInt(100));
-
         App app = new App();
         app.fetchProperties();
+
+        iLimitFile = NumberUtils.toInt(app.config.get(ConfigParams.LIMIT_ZIP_FILE.getParam()), 0);
+
+        if (null != args && args[0].equalsIgnoreCase("downloading")) {
+            logger.info("Task downloadingggggggggggggg +++++++++++++++++++++++++++");
+            // if downloading
+            // create file name, call api, exit :D
+            app.triggerDownloading();
+
+            //return
+            return;
+        }
+        logger.info("Task Uppppppploadingggggggggggggg +++++++++++++++++++++++++++");
+        String fileNameOriginalZip = app.randomFileName();
 
         List<File> files = new ArrayList<>();
         app.getFileInDirectory(new File(app.config.get(ConfigParams.FOLDER_DATA.getParam())),
                 files);
-        app.isCreateFolderZip();
+        boolean isCreateZipFolder = app.isCreateNewFolder(app.config.get(ConfigParams
+                .ZIP_FOLDER
+                .getParam()));
+        if (!isCreateZipFolder) {
+            logger.info(String.format("Don't create zip folder: %s, return",
+                    app.config.get(ConfigParams
+                            .ZIP_FOLDER
+                            .getParam())));
+            return;
+        }
         // we have a list file
         // zip file have number frame in config
-        iLimitFile = NumberUtils.toInt(app.config.get(ConfigParams.LIMIT_ZIP_FILE.getParam()), 0);
         configContent = app.config.get(ConfigParams.IS_DIFFERENT_CONTENT.getParam());
 
         try {
@@ -69,14 +80,41 @@ public class App {
             e.printStackTrace();
         }
 
+        /***/
         /**System.out.println("Press Any Key To Continue...");
-        new Scanner(System.in).nextLine();**/
+        new Scanner(System.in).nextLine();*/
     }
 
-    private boolean isCreateFolderZip() {
-        File dir = new File(config.get(ConfigParams
-                .ZIP_FOLDER
-                .getParam()));
+    private void triggerDownloading() {
+        for (int i = 0; i < iLimitFile; i++) {
+            logger.info(String.format("File number: %s", numberZipFile));
+            String fileName = randomFileName();
+            logger.info(String.format("File name: %s", fileName));
+
+            new IfpApiService(config.get(ConfigParams.URL_PROP.getParam())).loadLabeledDataWithRevision(fileName, 1).subscribe(
+              result -> {
+                  logger.info(String.format("Success: %s", result.toString()));
+              },
+                    throwable -> {
+                        logger.error(String.format("Fail, e: %s", throwable.getMessage()));
+                    },
+                    () -> {
+                        logger.info("TODO: NEXT");
+                    }
+            );
+
+            numberZipFile += 1;
+        }
+    }
+
+    /**
+     *
+     * @param path
+     * @return
+     */
+    private boolean isCreateNewFolder(String path) {
+        File dir = new File(path);
+
         if (!dir.exists()) {
             boolean successful = dir.mkdir();
             if (successful)
@@ -95,6 +133,12 @@ public class App {
         return true;
     }
 
+    /**
+     *
+     * @param file
+     * @param listFiles
+     * @throws IOException
+     */
     private void zipFileHelper(String file, List<File> listFiles) throws IOException {
         final String filePath = String.format("%s//%s", config.get(ConfigParams.ZIP_FOLDER.getParam())
                 , file);
@@ -107,6 +151,19 @@ public class App {
         if (numberFrame == 0) {
             logger.error("Number frame is invalid");
             return;
+        }
+        if (iLimitFile != 0 && numberZipFile > iLimitFile) {
+            return;
+        }
+        File fileZip = new File(filePath);
+
+        if (fileZip.exists()) {
+            boolean isDelete = fileZip.delete();
+            if (!isDelete) {
+                logger.info("Ten file da trung, xin dat lai ten khac -- prefix-file-create");
+                return;
+            }
+            logger.info("Delete old file, create new file -- prefix-file-create");
         }
         // list contain file in zip file
         List<File> fileinZip = new ArrayList<>();
@@ -152,9 +209,6 @@ public class App {
             logger.info(String.format("filePath: %s", filePath));
             logger.info(String.format("file name: %s", file));
 
-            if (iLimitFile != 0 && numberZipFile > iLimitFile) {
-                return;
-            }
             // upload server by using API
             // ++ call retrofit service
             uploadOriginalFile(filePath, fileinZip);
@@ -187,11 +241,18 @@ public class App {
         }
     }
 
+    /**
+     * create file name
+     * @return
+     */
     private String randomFileName() {
+        // file name = prefix-file + _number.
         Random random = new Random();
-        String fileNameOriginalZip = String.format("Original_file_%s_%s_%s.zip",System.currentTimeMillis(),
-                random.nextInt(1000), random.nextInt(100));
-        return fileNameOriginalZip;
+//        String fileNameOriginalZip = String.format("Original_file_%s_%s_%s.zip",System.currentTimeMillis(),
+//                random.nextInt(1000), random.nextInt(100));
+
+//        return fileNameOriginalZip;
+        return String.format("%s_%s.zip", config.get(ConfigParams.PREFIX_FILE.getParam()), numberZipFile);
     }
 
     private void getFileInDirectory(File filePath, List<File> files) {
@@ -211,6 +272,9 @@ public class App {
         }
     }
 
+    /**
+     * Get properties
+     */
     private void fetchProperties() {
         // Create and load default properties
         Properties defaultProps = new Properties();
@@ -236,6 +300,8 @@ public class App {
             config.put(ConfigParams.URL_PROP.getParam(),
                     defaultProps.getProperty(ConfigParams.URL_PROP.getParam()));
 
+            config.put(ConfigParams.PREFIX_FILE.getParam(),
+                    defaultProps.getProperty(ConfigParams.PREFIX_FILE.getParam()));
             /*
             defaultProps.entrySet().forEach(objectObjectEntry -> {
                 logger.info(objectObjectEntry.getKey() + " : " + objectObjectEntry.getValue());
@@ -248,7 +314,12 @@ public class App {
         }
     }
 
-
+    /**
+     * Use api 3.1 : upload original file (.zip)
+     * @param path
+     * @param listInZip
+     * @throws IOException
+     */
     private void uploadOriginalFile(String path, List<File> listInZip) throws IOException {
         // create upload service client
         logger.info(String.format("uploadOriginalFile"));
@@ -291,16 +362,22 @@ public class App {
     }
 
     /**
-     * 3.10
+     * 3.10: upload annotated file
      * @param file
      * @param fileInZip
      * @throws IOException
      */
     private void uploadAnnotatedFile(File file, List<File> fileInZip) throws IOException {
-        String filePath = ".\\data\\annotated";
+        String filePath = ".\\data\\annotated\\clone-labbed-file";
         String filePathGtt = ".\\data\\annotated\\IMG_4513_01680.gtt";
 
         if (null == fileInZip || fileInZip.size() ==0 ) {
+            return;
+        }
+        boolean isCreateFolder = isCreateNewFolder(filePath);
+        if (!isCreateFolder) {
+            logger.info(String.format("Do not create folder : %s", filePath));
+            // return, out flow
             return;
         }
         // if zip have data
@@ -322,7 +399,7 @@ public class App {
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.error(e.getMessage());
             }
 
         }
@@ -362,7 +439,7 @@ public class App {
     }
 
     /**
-     * 3.11
+     * 3.11: checking
      * @param file
      * @throws Exception
      */
@@ -397,11 +474,25 @@ public class App {
     }
 
     /**
-     * 3.14
+     * 3.14: qc check passed
      */
     private void doUploadFile(File file) throws Exception {
         UploadFiles.doPassed(config.get(ConfigParams.URL_PROP.getParam())+ "/files/qc_accept_annotated",
                 file.getName(), 0);
+
+        // do check download file test
+        Thread thread = new Thread(() -> {
+            // 2.6 download
+            new IfpApiService(config.get(ConfigParams.URL_PROP.getParam())).loadLabeledDataWithRevision(file.getName(), 0).subscribe(
+                    result -> { logger.info("result: " + result.getMessage());
+                    },
+                    throwable -> {logger.info(String.format("Fail : %s", throwable.getMessage()));
+                    },
+                    () -> {logger.info("Downlaod trigger file success --> Do next");
+                    }
+            );
+        });
+       // thread.start();
     }
 
 }

@@ -59,4 +59,9 @@ public class IfpApiService {
     public Observable<Result> qcAcceptAnnotated(QcModel qcModel) {
         return ifpAPI.qcAcceptAnnotated(qcModel);
     }
+
+    // 3.6. Request to check/load binary file|image and labeled data with revision
+    public Observable<Result> loadLabeledDataWithRevision(String fileId, int revision) {
+        return ifpAPI.loadLabeledDataWithRevision(fileId, revision);
+    }
 }

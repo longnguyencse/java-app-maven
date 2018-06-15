@@ -11,6 +11,7 @@ public enum ConfigParams {
     IS_DIFFERENT_CONTENT("is-different-content"),
     LIMIT_ZIP_FILE("limit-zip-file"),
     URL_PROP("url-server"),
+    PREFIX_FILE("prefix-file-create"),
     NUMBER_FRAMES("number-frame-annotated-file");
 
     String param;

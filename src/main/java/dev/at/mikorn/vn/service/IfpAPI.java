@@ -64,6 +64,10 @@ public interface IfpAPI {
     @POST("/files/qc_accept_annotated")
     Observable<Result> qcAcceptAnnotated (@Body QcModel qcModel);
 
+    // 3.6 Request to check/load binary file|image and labeled data with revision
+    @GET("/files/check_load")
+    Observable<Result> loadLabeledDataWithRevision(@Query("file_id") String fileId, @Query("revision") int revision);
+
 
     // test api github
     @GET("users/{user}/repos")
